@@ -27,7 +27,10 @@ namespace netProject.Controllers
                 .OrderByDescending(e => e.TotalTimeInHours)
                 .ToList();
 
-            
+            string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "piechart.png");
+            _timeEntryService.GeneratePieChart(employeeTimeDictionary, outputPath);
+
+            ViewBag.PieChartPath = "/piechart.png";
 
             return View(employeeMonthlyTimes);
         }
