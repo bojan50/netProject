@@ -1,32 +1,35 @@
 using Microsoft.AspNetCore.Mvc;
 using netProject.Models;
-using System.Diagnostics;
+using netProject.Service;
 
 namespace netProject.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly TimeEntryService _timeEntryService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(TimeEntryService timeEntryService)
         {
-            _logger = logger;
+            _timeEntryService = timeEntryService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var timeEntries = await _timeEntryService.GetTimeEntries();
+            var employeeTimeDictionary = _timeEntryService.CalculateEmployeeTime(timeEntries);
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            List<EmployeeMonthlyTime> employeeMonthlyTimes = employeeTimeDictionary
+                .Select(e => new EmployeeMonthlyTime
+                {
+                    EmployeeName = e.Key,
+                    TotalTimeInHours = e.Value
+                })
+                .OrderByDescending(e => e.TotalTimeInHours)
+                .ToList();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            
+
+            return View(employeeMonthlyTimes);
         }
     }
 }

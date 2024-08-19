@@ -1,6 +1,12 @@
+using netProject.Models;
+using netProject.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<TimeEntryApiOptions>(builder.Configuration.GetSection("TimeEntryApi"));
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<TimeEntryService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
